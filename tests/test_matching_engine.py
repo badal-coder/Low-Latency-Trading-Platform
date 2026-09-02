@@ -45,7 +45,11 @@ def test_partial_fill():
     book = engine.get_book("BTCUSD")
 
     assert book.best_bid() == 100
-    assert book.bids[100].orders[0].remaining_quantity == 50
+
+    node = book.bids[100].orders.peek()
+
+    assert node is not None
+    assert node.order.remaining_quantity == 50
 
 
 def test_no_match():

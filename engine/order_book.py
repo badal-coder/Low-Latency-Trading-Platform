@@ -1,14 +1,13 @@
-from collections import deque
 from dataclasses import dataclass
-from typing import Deque
 
 from .order import Order, Side
+from .order_queue import OrderNode, OrderQueue
 
 
-@dataclass
+@dataclass(slots=True)
 class PriceLevel:
     price: int
-    orders: Deque[Order]
+    orders: OrderQueue
 
 
 class OrderBook:
@@ -18,8 +17,11 @@ class OrderBook:
         self.bids: dict[int, PriceLevel] = {}
         self.asks: dict[int, PriceLevel] = {}
 
-        # Fast lookup: order_id -> Order
+        # order_id -> Order
         self.orders: dict[int, Order] = {}
+
+        # order_id -> OrderNode
+        self.order_nodes: dict[int, OrderNode] = {}
 
     def add_order(self, order: Order) -> None:
         book = self.bids if order.side == Side.BUY else self.asks
@@ -27,16 +29,19 @@ class OrderBook:
         if order.price not in book:
             book[order.price] = PriceLevel(
                 price=order.price,
-                orders=deque(),
+                orders=OrderQueue(),
             )
 
-        book[order.price].orders.append(order)
+        node = book[order.price].orders.append(order)
+
         self.orders[order.order_id] = order
+        self.order_nodes[order.order_id] = node
 
     def remove_order(self, order_id: int) -> bool:
         order = self.orders.get(order_id)
+        node = self.order_nodes.get(order_id)
 
-        if order is None:
+        if order is None or node is None:
             return False
 
         book = self.bids if order.side == Side.BUY else self.asks
@@ -45,17 +50,48 @@ class OrderBook:
         if level is None:
             return False
 
-        try:
-            level.orders.remove(order)
-        except ValueError:
-            return False
+        level.orders.remove(node)
 
         del self.orders[order_id]
+        del self.order_nodes[order_id]
 
-        if not level.orders:
+        if len(level.orders) == 0:
             del book[order.price]
 
         return True
+
+    def pop_best_order(
+        self,
+        side: Side,
+    ) -> Order | None:
+
+        book = self.bids if side == Side.BUY else self.asks
+
+        if not book:
+            return None
+
+        price = (
+            max(book)
+            if side == Side.BUY
+            else min(book)
+        )
+
+        level = book[price]
+
+        node = level.orders.popleft()
+
+        if node is None:
+            return None
+
+        order = node.order
+
+        del self.orders[order.order_id]
+        del self.order_nodes[order.order_id]
+
+        if len(level.orders) == 0:
+            del book[price]
+
+        return order
 
     def best_bid(self) -> int | None:
         if not self.bids:

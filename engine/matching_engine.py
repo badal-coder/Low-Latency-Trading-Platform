@@ -33,7 +33,12 @@ class MatchingEngine:
 
         return self._match_limit(order, book)
 
-    def cancel_order(self, symbol: str, order_id: int) -> bool:
+    def cancel_order(
+        self,
+        symbol: str,
+        order_id: int,
+    ) -> bool:
+
         book = self.books.get(symbol)
 
         if book is None:
@@ -44,12 +49,11 @@ class MatchingEngine:
         if order is None:
             return False
 
-        success = book.remove_order(order_id)
-
-        if success:
+        if book.remove_order(order_id):
             order.status = OrderStatus.CANCELLED
+            return True
 
-        return success
+        return False
 
     def _create_trade(
         self,
@@ -118,9 +122,12 @@ class MatchingEngine:
 
                 level = book.bids[best_price]
 
-            while level.orders and order.remaining_quantity > 0:
+            while level.orders.peek() is not None:
+                if order.remaining_quantity <= 0:
+                    break
 
-                resting_order = level.orders[0]
+                node = level.orders.peek()
+                resting_order = node.order
 
                 trade_quantity = min(
                     order.remaining_quantity,
@@ -135,21 +142,33 @@ class MatchingEngine:
                     )
                 )
 
-                self._update_fill(order, trade_quantity)
-                self._update_fill(resting_order, trade_quantity)
+                self._update_fill(
+                    order,
+                    trade_quantity,
+                )
+
+                self._update_fill(
+                    resting_order,
+                    trade_quantity,
+                )
 
                 if resting_order.remaining_quantity == 0:
-                    level.orders.popleft()
-                    del book.orders[resting_order.order_id]
+                    removed = level.orders.popleft()
 
-            if not level.orders:
+                    del book.orders[
+                        resting_order.order_id
+                    ]
+
+                    del book.order_nodes[
+                        resting_order.order_id
+                    ]
+
+            if len(level.orders) == 0:
                 if order.side == Side.BUY:
                     del book.asks[best_price]
                 else:
                     del book.bids[best_price]
 
-        # If the order never traded, it becomes OPEN.
-        # If it traded partially, keep PARTIALLY_FILLED.
         if order.remaining_quantity > 0:
             if order.filled_quantity == 0:
                 order.status = OrderStatus.OPEN
@@ -184,9 +203,12 @@ class MatchingEngine:
 
                 level = book.bids[best_price]
 
-            while level.orders and order.remaining_quantity > 0:
+            while level.orders.peek() is not None:
+                if order.remaining_quantity <= 0:
+                    break
 
-                resting_order = level.orders[0]
+                node = level.orders.peek()
+                resting_order = node.order
 
                 trade_quantity = min(
                     order.remaining_quantity,
@@ -201,14 +223,28 @@ class MatchingEngine:
                     )
                 )
 
-                self._update_fill(order, trade_quantity)
-                self._update_fill(resting_order, trade_quantity)
+                self._update_fill(
+                    order,
+                    trade_quantity,
+                )
+
+                self._update_fill(
+                    resting_order,
+                    trade_quantity,
+                )
 
                 if resting_order.remaining_quantity == 0:
                     level.orders.popleft()
-                    del book.orders[resting_order.order_id]
 
-            if not level.orders:
+                    del book.orders[
+                        resting_order.order_id
+                    ]
+
+                    del book.order_nodes[
+                        resting_order.order_id
+                    ]
+
+            if len(level.orders) == 0:
                 if order.side == Side.BUY:
                     del book.asks[best_price]
                 else:
