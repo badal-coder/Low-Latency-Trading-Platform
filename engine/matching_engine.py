@@ -9,6 +9,7 @@ from .events import (
 )
 from .order import Order, Side, OrderType, OrderStatus
 from .order_book import OrderBook
+from .risk import RiskEngine
 
 
 @dataclass(slots=True)
@@ -22,13 +23,18 @@ class Trade:
 
 
 class MatchingEngine:
-    def __init__(self, event_bus: EventBus | None = None):
+    def __init__(
+        self,
+        event_bus: EventBus | None = None,
+        risk_engine: RiskEngine | None = None,
+    ):
         self.books: dict[str, OrderBook] = {}
 
         self.next_trade_id = 1
         self.next_sequence = 1
 
         self.event_bus = event_bus or EventBus()
+        self.risk_engine = risk_engine or RiskEngine()
 
     def get_book(self, symbol: str) -> OrderBook:
         if symbol not in self.books:
@@ -41,37 +47,22 @@ class MatchingEngine:
         self.next_sequence += 1
         return sequence
 
-    def _validate_order(self, order: Order) -> bool:
-        # Quantity must be positive.
-        if order.quantity <= 0:
-            return False
-
-        # Limit orders must have a positive price.
-        # Market orders do not require a price.
-        if (
-            order.order_type == OrderType.LIMIT
-            and order.price <= 0
-        ):
-            return False
-
-        # Order IDs must be unique within the symbol's book.
-        book = self.get_book(order.symbol)
-
-        if order.order_id in book.orders:
-            return False
-
-        return True
-
     def submit_order(self, order: Order) -> list[Trade]:
+        # Pre-trade risk checks happen before accepting the order.
+        allowed, reason = self.risk_engine.check_order(order)
 
-        # Validate before accepting the order.
-        if not self._validate_order(order):
+        if not allowed:
             order.status = OrderStatus.REJECTED
             return []
 
-        book: OrderBook = self.get_book(order.symbol)
+        book = self.get_book(order.symbol)
 
-        # Every accepted order generates an event first.
+        # Reject duplicate order IDs.
+        if order.order_id in book.orders:
+            order.status = OrderStatus.REJECTED
+            return []
+
+        # Accepted orders generate an event first.
         self.event_bus.publish(
             OrderAcceptedEvent(
                 sequence=self._next_event_sequence(),
@@ -83,17 +74,9 @@ class MatchingEngine:
         )
 
         if order.order_type == OrderType.MARKET:
-            trades: list[Trade] = self._match_market(
-                order,
-                book,
-            )
-        else:
-            trades: list[Trade] = self._match_limit(
-                order,
-                book,
-            )
+            return self._match_market(order, book)
 
-        return trades
+        return self._match_limit(order, book)
 
     def cancel_order(
         self,
@@ -195,10 +178,7 @@ class MatchingEngine:
             if order.side == Side.BUY:
                 best_price = book.best_ask()
 
-                if (
-                    best_price is None
-                    or best_price > order.price
-                ):
+                if best_price is None or best_price > order.price:
                     break
 
                 level = book.asks[best_price]
@@ -206,10 +186,7 @@ class MatchingEngine:
             else:
                 best_price = book.best_bid()
 
-                if (
-                    best_price is None
-                    or best_price < order.price
-                ):
+                if best_price is None or best_price < order.price:
                     break
 
                 level = book.bids[best_price]
@@ -257,7 +234,6 @@ class MatchingEngine:
                     ]
 
             if len(level.orders) == 0:
-
                 if order.side == Side.BUY:
                     del book.asks[best_price]
                 else:
