@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from .event_bus import EventBus
 from .events import (
     EventType,
@@ -10,16 +8,7 @@ from .events import (
 from .order import Order, Side, OrderType, OrderStatus
 from .order_book import OrderBook
 from .risk import RiskEngine
-
-
-@dataclass(slots=True)
-class Trade:
-    trade_id: int
-    symbol: str
-    price: int
-    quantity: int
-    buy_order_id: int
-    sell_order_id: int
+from .trade import Trade
 
 
 class MatchingEngine:
@@ -48,7 +37,7 @@ class MatchingEngine:
         return sequence
 
     def submit_order(self, order: Order) -> list[Trade]:
-        # Pre-trade risk checks happen before accepting the order.
+        # Pre-trade risk checks
         allowed, reason = self.risk_engine.check_order(order)
 
         if not allowed:
@@ -57,12 +46,12 @@ class MatchingEngine:
 
         book = self.get_book(order.symbol)
 
-        # Reject duplicate order IDs.
+        # Duplicate order ID check
         if order.order_id in book.orders:
             order.status = OrderStatus.REJECTED
             return []
 
-        # Accepted orders generate an event first.
+        # Accepted order event
         self.event_bus.publish(
             OrderAcceptedEvent(
                 sequence=self._next_event_sequence(),
@@ -165,6 +154,18 @@ class MatchingEngine:
         else:
             order.status = OrderStatus.PARTIALLY_FILLED
 
+    def _remove_filled_order(
+        self,
+        book: OrderBook,
+        level,
+        order: Order,
+    ) -> None:
+
+        level.orders.popleft()
+
+        del book.orders[order.order_id]
+        del book.order_nodes[order.order_id]
+
     def _match_limit(
         self,
         order: Order,
@@ -223,22 +224,20 @@ class MatchingEngine:
                 )
 
                 if resting_order.remaining_quantity == 0:
-                    level.orders.popleft()
-
-                    del book.orders[
-                        resting_order.order_id
-                    ]
-
-                    del book.order_nodes[
-                        resting_order.order_id
-                    ]
+                    self._remove_filled_order(
+                        book,
+                        level,
+                        resting_order,
+                    )
 
             if len(level.orders) == 0:
+
                 if order.side == Side.BUY:
                     del book.asks[best_price]
                 else:
                     del book.bids[best_price]
 
+        # Remaining limit quantity rests on the book
         if order.remaining_quantity > 0:
 
             if order.filled_quantity == 0:
@@ -306,15 +305,11 @@ class MatchingEngine:
                 )
 
                 if resting_order.remaining_quantity == 0:
-                    level.orders.popleft()
-
-                    del book.orders[
-                        resting_order.order_id
-                    ]
-
-                    del book.order_nodes[
-                        resting_order.order_id
-                    ]
+                    self._remove_filled_order(
+                        book,
+                        level,
+                        resting_order,
+                    )
 
             if len(level.orders) == 0:
 

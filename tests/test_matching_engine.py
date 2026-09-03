@@ -2,9 +2,16 @@ from engine.order import Order, OrderType, Side
 from engine.matching_engine import MatchingEngine
 
 
-def make_order(order_id, side, price, quantity, timestamp):
+def make_order(
+    order_id,
+    side,
+    price,
+    quantity,
+    timestamp,
+):
     return Order(
         order_id=order_id,
+        account_id=1,
         symbol="BTCUSD",
         side=side,
         order_type=OrderType.LIMIT,
