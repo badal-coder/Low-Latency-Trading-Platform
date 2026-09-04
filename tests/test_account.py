@@ -100,3 +100,64 @@ def test_zero_position_is_removed():
 
     assert account.get_position("BTCUSD") == 0
     assert "BTCUSD" not in account.positions
+def test_available_cash_excludes_reserved_cash():
+    account = Account(
+        account_id=1,
+        cash=10_000,
+    )
+
+    account.reserve_cash(3_000)
+
+    assert account.cash == 10_000
+    assert account.reserved_cash == 3_000
+    assert account.available_cash == 7_000
+
+
+def test_reserve_cash():
+    account = Account(
+        account_id=1,
+        cash=10_000,
+    )
+
+    account.reserve_cash(4_000)
+
+    assert account.reserved_cash == 4_000
+    assert account.available_cash == 6_000
+
+
+def test_cannot_reserve_more_than_available_cash():
+    account = Account(
+        account_id=1,
+        cash=10_000,
+    )
+
+    with pytest.raises(ValueError, match="insufficient available cash"):
+        account.reserve_cash(10_001)
+
+
+def test_release_cash():
+    account = Account(
+        account_id=1,
+        cash=10_000,
+    )
+
+    account.reserve_cash(4_000)
+    account.release_cash(1_500)
+
+    assert account.reserved_cash == 2_500
+    assert account.available_cash == 7_500
+
+
+def test_cannot_release_more_than_reserved():
+    account = Account(
+        account_id=1,
+        cash=10_000,
+    )
+
+    account.reserve_cash(2_000)
+
+    with pytest.raises(
+        ValueError,
+        match="cannot release more than reserved cash",
+    ):
+        account.release_cash(3_000)

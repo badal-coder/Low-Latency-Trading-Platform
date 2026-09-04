@@ -2,11 +2,12 @@ from engine.event_bus import EventBus
 from engine.events import (
     EventType,
     OrderAcceptedEvent,
+    OrderRejectedEvent,
     OrderCancelledEvent,
     TradeExecutedEvent,
 )
 from engine.matching_engine import MatchingEngine
-from engine.order import Order, OrderType, Side
+from engine.order import Order, OrderType, Side, OrderStatus
 
 
 def make_order(
@@ -56,6 +57,82 @@ def test_order_submission_generates_event():
     assert event.symbol == "BTCUSD"
 
 
+def test_rejected_order_generates_event():
+    bus = EventBus()
+    events = []
+
+    bus.subscribe(events.append)
+
+    engine = MatchingEngine(bus)
+
+    order = make_order(
+        1,
+        Side.BUY,
+        100,
+        0,
+        1,
+    )
+
+    trades = engine.submit_order(order)
+
+    assert trades == []
+    assert order.status == OrderStatus.REJECTED
+
+    assert len(events) == 1
+
+    event = events[0]
+
+    assert isinstance(event, OrderRejectedEvent)
+    assert event.event_type == EventType.ORDER_REJECTED
+    assert event.sequence == 1
+    assert event.order_id == 1
+    assert event.symbol == "BTCUSD"
+    assert event.reason == "INVALID_QUANTITY"
+
+
+def test_duplicate_order_generates_rejected_event():
+    bus = EventBus()
+    events = []
+
+    bus.subscribe(events.append)
+
+    engine = MatchingEngine(bus)
+
+    first = make_order(
+        1,
+        Side.BUY,
+        100,
+        50,
+        1,
+    )
+
+    duplicate = make_order(
+        1,
+        Side.BUY,
+        100,
+        50,
+        2,
+    )
+
+    engine.submit_order(first)
+
+    events.clear()
+
+    engine.submit_order(duplicate)
+
+    assert duplicate.status == OrderStatus.REJECTED
+
+    assert len(events) == 1
+
+    event = events[0]
+
+    assert isinstance(event, OrderRejectedEvent)
+    assert event.event_type == EventType.ORDER_REJECTED
+    assert event.order_id == 1
+    assert event.symbol == "BTCUSD"
+    assert event.reason == "DUPLICATE_ORDER_ID"
+
+
 def test_trade_generates_event():
     bus = EventBus()
     events = []
@@ -93,8 +170,10 @@ def test_trade_generates_event():
 
     event = trade_events[0]
 
+    assert event.event_type == EventType.TRADE_EXECUTED
     assert event.buy_order_id == 2
     assert event.sell_order_id == 1
+    assert event.symbol == "BTCUSD"
     assert event.price == 100
     assert event.quantity == 50
 
@@ -131,6 +210,7 @@ def test_cancel_generates_event():
     assert isinstance(event, OrderCancelledEvent)
     assert event.event_type == EventType.ORDER_CANCELLED
     assert event.order_id == 1
+    assert event.symbol == "BTCUSD"
 
 
 def test_event_sequences_are_monotonic():
@@ -166,7 +246,7 @@ def test_event_sequences_are_monotonic():
     ]
 
     assert sequences == sorted(sequences)
+
     assert sequences == list(
         range(1, len(sequences) + 1)
     )
-    

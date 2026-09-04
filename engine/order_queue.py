@@ -13,6 +13,12 @@ class OrderNode:
 
 
 class OrderQueue:
+    __slots__ = (
+        "head",
+        "tail",
+        "size",
+    )
+
     def __init__(self):
         self.head: OrderNode | None = None
         self.tail: OrderNode | None = None
@@ -21,12 +27,14 @@ class OrderQueue:
     def append(self, order: Order) -> OrderNode:
         node = OrderNode(order)
 
-        if self.tail is None:
+        tail = self.tail
+
+        if tail is None:
             self.head = node
             self.tail = node
         else:
-            node.prev = self.tail
-            self.tail.next = node
+            node.prev = tail
+            tail.next = node
             self.tail = node
 
         self.size += 1

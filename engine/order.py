@@ -38,12 +38,36 @@ class Order:
     def remaining_quantity(self) -> int:
         return self.quantity - self.filled_quantity
 
+    @property
+    def is_active(self) -> bool:
+        return self.status in (
+            OrderStatus.OPEN,
+            OrderStatus.PARTIALLY_FILLED,
+        )
+
+    @property
+    def is_terminal(self) -> bool:
+        return self.status in (
+            OrderStatus.FILLED,
+            OrderStatus.CANCELLED,
+            OrderStatus.REJECTED,
+        )
+
     def fill(self, quantity: int) -> None:
         if quantity <= 0:
-            raise ValueError("fill quantity must be positive")
+            raise ValueError(
+                "fill quantity must be positive"
+            )
+
+        if self.is_terminal:
+            raise ValueError(
+                "cannot fill terminal order"
+            )
 
         if quantity > self.remaining_quantity:
-            raise ValueError("fill quantity exceeds remaining quantity")
+            raise ValueError(
+                "fill quantity exceeds remaining quantity"
+            )
 
         self.filled_quantity += quantity
 
@@ -56,4 +80,16 @@ class Order:
         if self.status == OrderStatus.FILLED:
             return
 
+        if self.status == OrderStatus.CANCELLED:
+            return
+
+        if self.status == OrderStatus.REJECTED:
+            return
+
         self.status = OrderStatus.CANCELLED
+
+    def reject(self) -> None:
+        if self.is_terminal:
+            return
+
+        self.status = OrderStatus.REJECTED

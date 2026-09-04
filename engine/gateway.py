@@ -21,11 +21,13 @@ class OrderGateway:
         self,
         matching_engine: MatchingEngine | None = None,
     ):
-        self.matching_engine = matching_engine or MatchingEngine()
+        self.matching_engine = (
+            matching_engine
+            if matching_engine is not None
+            else MatchingEngine()
+        )
 
-        # Store every order submitted through the gateway.
-        # The matching engine removes filled orders from the
-        # order book, but the gateway keeps the order accessible.
+        # Persistent order store.
         self.orders: dict[int, Order] = {}
 
     def submit(
@@ -39,12 +41,12 @@ class OrderGateway:
             symbol=request.symbol,
             side=request.side,
             order_type=request.order_type,
-            price=request.price,
             quantity=request.quantity,
+            price=request.price,
             timestamp_ns=request.timestamp_ns,
         )
 
-        self.orders[order.order_id] = order
+        self.orders[request.order_id] = order
 
         return self.matching_engine.submit_order(order)
 
@@ -53,7 +55,6 @@ class OrderGateway:
         request: OrderRequest,
     ) -> list[Trade]:
 
-        # Compatibility alias.
         return self.submit(request)
 
     def cancel(
@@ -73,7 +74,6 @@ class OrderGateway:
         order_id: int,
     ) -> bool:
 
-        # Compatibility alias.
         return self.cancel(symbol, order_id)
 
     def get_order(
@@ -91,5 +91,5 @@ class OrderGateway:
         return order
 
 
-# Compatibility with exchange.py
+# Compatibility alias.
 Gateway = OrderGateway

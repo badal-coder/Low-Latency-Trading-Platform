@@ -1,42 +1,21 @@
-import time
 import statistics
+import time
 
 from engine.exchange import Exchange
 from engine.gateway import OrderRequest
 from engine.order import Side, OrderType
 
 
-def benchmark(num_orders: int = 10_000) -> None:
-    exchange = Exchange()
-
-    exchange.create_account(
-        account_id=1,
-        initial_cash=10_000_000,
-    )
-
-    exchange.create_account(
-        account_id=2,
-        initial_cash=0,
-    )
-
-    # Put liquidity on the book.
-    exchange.submit_order(
-        OrderRequest(
-            order_id=1,
-            account_id=2,
-            symbol="AAPL",
-            side=Side.SELL,
-            order_type=OrderType.LIMIT,
-            quantity=num_orders,
-            price=100,
-            timestamp_ns=time.time_ns(),
-        )
-    )
+def run_benchmark(
+    name: str,
+    exchange: Exchange,
+    num_orders: int,
+) -> None:
 
     latencies_ns = []
 
     for i in range(num_orders):
-        order_id = i + 2
+        order_id = i + 10_000
 
         request = OrderRequest(
             order_id=order_id,
@@ -73,7 +52,7 @@ def benchmark(num_orders: int = 10_000) -> None:
     throughput = num_orders / total_seconds
 
     print()
-    print("===== Exchange Benchmark =====")
+    print(f"===== {name} =====")
     print(f"Orders:       {num_orders:,}")
     print(f"Throughput:   {throughput:,.0f} orders/sec")
     print(f"p50 latency:  {p50:.2f} us")
@@ -84,5 +63,100 @@ def benchmark(num_orders: int = 10_000) -> None:
     print()
 
 
+def create_exchange() -> Exchange:
+    exchange = Exchange()
+
+    exchange.create_account(
+        account_id=1,
+        initial_cash=10_000_000,
+    )
+
+    exchange.create_account(
+        account_id=2,
+        initial_cash=0,
+    )
+
+    return exchange
+
+
+def setup_single_level(
+    exchange: Exchange,
+    num_orders: int,
+) -> None:
+
+    exchange.submit_order(
+        OrderRequest(
+            order_id=1,
+            account_id=2,
+            symbol="AAPL",
+            side=Side.SELL,
+            order_type=OrderType.LIMIT,
+            quantity=num_orders,
+            price=100,
+            timestamp_ns=time.time_ns(),
+        )
+    )
+
+
+def setup_many_levels(
+    exchange: Exchange,
+) -> None:
+
+    order_id = 1
+
+    # Create many ask price levels.
+    for price in range(100, 1_100):
+        exchange.submit_order(
+            OrderRequest(
+                order_id=order_id,
+                account_id=2,
+                symbol="AAPL",
+                side=Side.SELL,
+                order_type=OrderType.LIMIT,
+                quantity=1,
+                price=price,
+                timestamp_ns=time.time_ns(),
+            )
+        )
+
+        order_id += 1
+
+
+def main() -> None:
+
+    num_orders = 10_000
+
+    # --------------------------------------------------
+    # Benchmark A: single price level
+    # --------------------------------------------------
+
+    exchange = create_exchange()
+
+    setup_single_level(
+        exchange,
+        num_orders,
+    )
+
+    run_benchmark(
+        "Single Price Level Benchmark",
+        exchange,
+        num_orders,
+    )
+
+    # --------------------------------------------------
+    # Benchmark B: many price levels
+    # --------------------------------------------------
+
+    exchange = create_exchange()
+
+    setup_many_levels(exchange)
+
+    run_benchmark(
+        "Many Price Levels Benchmark",
+        exchange,
+        num_orders,
+    )
+
+
 if __name__ == "__main__":
-    benchmark()
+    main()

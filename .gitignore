@@ -4,19 +4,27 @@
 # Python cache
 __pycache__/
 *.py[cod]
-*$py.class
 
 # Pytest
 .pytest_cache/
-
-# Coverage
-.coverage
-htmlcov/
 
 # IDE
 .vscode/
 .idea/
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+
+# Runtime/generated data
+*.wal
+*.db
+
+# Grafana
+grafana_data/
+
+# Environment files
+.env

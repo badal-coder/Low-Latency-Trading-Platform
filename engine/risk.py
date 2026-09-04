@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .order import Order
+from .order import Order, OrderType
 
 
 @dataclass(slots=True)
@@ -17,13 +17,14 @@ class RiskEngine:
         if order.quantity <= 0:
             return False, "INVALID_QUANTITY"
 
-        if order.order_type.name == "LIMIT" and order.price <= 0:
-            return False, "INVALID_PRICE"
+        if order.order_type == OrderType.LIMIT:
+            if order.price <= 0:
+                return False, "INVALID_PRICE"
 
         if order.quantity > self.limits.max_order_quantity:
             return False, "MAX_ORDER_QUANTITY"
 
-        if order.order_type.name == "LIMIT":
+        if order.order_type == OrderType.LIMIT:
             notional = order.price * order.quantity
 
             if notional > self.limits.max_order_notional:
