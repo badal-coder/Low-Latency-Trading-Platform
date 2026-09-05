@@ -28,3 +28,29 @@ grafana_data/
 
 # Environment files
 .env
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Node / Next.js
+portal/node_modules/
+portal/.next/
+portal/out/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Database / runtime data
+data/*.db
+data/jwt_secret
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
