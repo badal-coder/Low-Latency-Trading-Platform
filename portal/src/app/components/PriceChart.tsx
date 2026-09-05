@@ -44,7 +44,7 @@ export default function PriceChart() {
               }
             : {},
           cache: "no-store",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -56,8 +56,8 @@ export default function PriceChart() {
       const list = Array.isArray(data)
         ? data
         : Array.isArray(data.trades)
-        ? data.trades
-        : [];
+          ? data.trades
+          : [];
 
       setTrades(list);
     } catch (error) {
@@ -106,32 +106,23 @@ export default function PriceChart() {
   }, [trades]);
 
   const latestPrice =
-    chartData.length > 0
-      ? chartData[chartData.length - 1].price
-      : null;
+    chartData.length > 0 ? chartData[chartData.length - 1].price : null;
 
   return (
     <div className="rounded-2xl border border-white/10 bg-[#111318] p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-white">
-            BTC/USD Price
-          </h2>
-          <p className="text-xs text-gray-500">
-            Live exchange trade price
-          </p>
+          <h2 className="text-lg font-semibold text-white">BTC/USD Price</h2>
+
+          <p className="text-xs text-gray-500">Live exchange trade price</p>
         </div>
 
         <div className="text-right">
           <div className="text-xl font-bold text-white">
-            {latestPrice !== null
-              ? `$${latestPrice.toLocaleString()}`
-              : "--"}
+            {latestPrice !== null ? `$${latestPrice.toLocaleString()}` : "--"}
           </div>
 
-          <div className="text-xs text-green-400">
-            ● LIVE
-          </div>
+          <div className="text-xs text-green-400">● LIVE</div>
         </div>
       </div>
 
@@ -143,7 +134,9 @@ export default function PriceChart() {
         ) : chartData.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-gray-500">
             <div className="mb-2 text-3xl">📈</div>
+
             <div>No trades yet</div>
+
             <div className="mt-1 text-xs">
               Execute trades to populate the price chart
             </div>
@@ -160,45 +153,33 @@ export default function PriceChart() {
               }}
             >
               <defs>
-                <linearGradient
-                  id="priceGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="0%"
-                    stopColor="#22c55e"
-                    stopOpacity={0.35}
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor="#22c55e"
-                    stopOpacity={0}
-                  />
+                <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#22c55e" stopOpacity={0.35} />
+
+                  <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
                 </linearGradient>
               </defs>
 
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#27272a"
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
 
               <XAxis
                 dataKey="time"
                 stroke="#71717a"
-                tick={{ fill: "#71717a", fontSize: 11 }}
+                tick={{
+                  fill: "#71717a",
+                  fontSize: 11,
+                }}
                 minTickGap={30}
               />
 
               <YAxis
                 stroke="#71717a"
-                tick={{ fill: "#71717a", fontSize: 11 }}
+                tick={{
+                  fill: "#71717a",
+                  fontSize: 11,
+                }}
                 domain={["auto", "auto"]}
-                tickFormatter={(value) =>
-                  `$${Number(value).toLocaleString()}`
-                }
+                tickFormatter={(value) => `$${Number(value).toLocaleString()}`}
                 width={85}
               />
 
@@ -209,10 +190,8 @@ export default function PriceChart() {
                   borderRadius: "10px",
                   color: "#fff",
                 }}
-                formatter={(value: number | undefined) => [
-                  value !== undefined
-                    ? `$${Number(value).toLocaleString()}`
-                    : "--",
+                formatter={(value) => [
+                  `$${Number(value).toLocaleString()}`,
                   "Price",
                 ]}
               />
@@ -235,6 +214,7 @@ export default function PriceChart() {
 
       <div className="mt-3 flex justify-between border-t border-white/5 pt-3 text-xs text-gray-500">
         <span>{chartData.length} trades</span>
+
         <span>Updates every 1.5s</span>
       </div>
     </div>
