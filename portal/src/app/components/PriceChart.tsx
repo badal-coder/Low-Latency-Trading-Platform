@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 
-const API = "http://127.0.0.1:8001";
+const API = "https://low-latency-trading-platform.onrender.com";
 const SYMBOL = "BTC/USD";
 
 type Trade = {
