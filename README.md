@@ -14,3 +14,182 @@ Deployment Link: https://low-latency-trading-platform.vercel.app/
 - [Performance & Benchmarks](#performance--benchmarks)
 - [Monitoring & Observability](#monitoring--observability)
 - [Screenshots](#screenshots)
+
+## Project Description
+
+> Low-Latency Trading Platform is a high-performance exchange system designed to simulate the core functionality of a real-world electronic trading exchange. The platform implements an in-memory order book with price-time priority, FIFO matching, order execution, risk management, settlement, persistence, and real-time market data.
+
+The project also provides a web-based trading portal for interacting with the exchange and an observability layer using Prometheus and Grafana for monitoring exchange performance, order activity, trade execution, and latency.
+
+## Objectives
+
+> - Build a low-latency exchange engine capable of processing high volumes of orders efficiently.
+> - Implement a realistic price-time priority matching engine with FIFO order execution.
+> - Provide a web-based trading portal for submitting and managing orders.
+> - Implement risk checks, balance/position reservations, and trade settlement.
+> - Provide persistence and recovery mechanisms using WAL and event replay.
+> - Monitor exchange performance and operational metrics using Prometheus and Grafana.
+
+## Features
+
+> ### Trading Engine
+> - In-memory order book with **price-time priority** and FIFO matching.
+> - Support for **limit and market orders**.
+> - Full and partial order execution.
+> - Order cancellation and complete order lifecycle management.
+>
+> ### Account & Risk Management
+> - Account creation and balance management.
+> - Cash and position tracking.
+> - Pre-trade risk checks.
+> - Cash and asset reservation for open orders.
+> - Trade settlement with updated balances and positions.
+>
+> ### Persistence & Recovery
+> - Write-Ahead Logging (WAL) for exchange events.
+> - Event recording and replay.
+> - Exchange state recovery after restart.
+> - Persistent account, position, and authentication data using SQLite.
+>
+> ### Real-Time Trading Portal
+> - Web-based trading interface built with **Next.js** and **TypeScript**.
+> - Live order book and trade information.
+> - Order submission and cancellation.
+> - Account balance and portfolio information.
+> - Real-time market updates using **WebSockets**.
+> - Live price chart for executed trades.
+>
+> ### Monitoring & Observability
+> - Prometheus metrics for exchange activity.
+> - Grafana dashboards for monitoring system performance.
+> - Order throughput and trade volume monitoring.
+> - Order processing latency metrics.
+> - Active orders, rejected orders, and cancelled orders tracking.
+>
+> ### Testing & Performance
+> - Comprehensive automated test suite.
+> - Unit and integration testing of exchange components.
+> - Benchmarking for matching-engine and end-to-end performance.
+> - Performance analysis of WAL persistence overhead.
+
+## Technologies Used
+
+> ### Backend & Trading Engine
+> - **Python 3.13** — Core exchange engine and backend development.
+> - **FastAPI** — REST API and WebSocket services.
+> - **Uvicorn** — ASGI server for running the backend.
+>
+> ### Trading & Data Management
+> - **SQLite** — Persistent storage for accounts, positions, and authentication data.
+> - **Write-Ahead Logging (WAL)** — Durable event logging and exchange recovery.
+> - **WebSockets** — Real-time market data and trading updates.
+>
+> ### Frontend
+> - **Next.js** — Web-based trading portal.
+> - **TypeScript** — Type-safe frontend development.
+> - **Tailwind CSS** — Frontend styling and responsive UI.
+> - **Recharts** — Real-time price chart visualization.
+>
+> ### Monitoring & Infrastructure
+> - **Prometheus** — Exchange metrics collection and monitoring.
+> - **Grafana** — Performance and operational dashboards.
+> - **Docker** — Containerization of the exchange backend.
+> - **Docker Compose** — Local infrastructure and service orchestration.
+>
+> ### Testing & Development
+> - **Pytest** — Automated testing.
+> - **Git & GitHub** — Version control and source-code management.
+> - **Vercel** — Frontend deployment.
+> - **Render** — Backend deployment.
+
+## Environment Variables
+
+> To run this project, create a `.env` file in the project root and add the required environment variables.
+
+### Backend Environment Variables
+
+- `JWT_SECRET` : Secret key used for signing and validating authentication tokens.
+
+> **Note:** The application automatically generates and persists the JWT secret in the `data/` directory when running locally if one is not already configured.
+
+### Frontend Environment Variables
+
+- `NEXT_PUBLIC_API_URL` : Base URL of the exchange backend API.
+- `NEXT_PUBLIC_WS_URL` : WebSocket URL used for real-time exchange updates.
+
+### Example
+
+```env
+JWT_SECRET=your-secret-key
+
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8001
+NEXT_PUBLIC_WS_URL=ws://127.0.0.1:8001/ws
+
+## Run Locally
+
+### Clone the project
+
+```bash
+git clone https://github.com/badal-coder/Low-Latency-Trading-Platform.git
+cd Low-Latency-Trading-Platform
+```
+
+### Create and activate a virtual environment
+
+```bash
+python -m venv .venv
+```
+
+For Windows:
+
+```powershell
+.venv\Scripts\activate
+```
+
+### Install backend dependencies
+
+```powershell
+pip install -r requirements.txt
+```
+
+### Start the backend server
+
+```powershell
+python -m uvicorn engine.api:app --port 8001
+```
+
+The backend API will run at:
+
+`http://127.0.0.1:8001`
+
+Swagger API documentation:
+
+`http://127.0.0.1:8001/docs`
+
+### Start the trading portal
+
+Open a new terminal:
+
+```powershell
+cd Low-Latency-Trading-Platform\portal
+npm install
+npm run dev -- -p 3001
+```
+
+The trading portal will run at:
+
+`http://localhost:3001`
+
+### Run with Docker Compose
+
+```powershell
+docker compose up --build
+```
+
+To stop the services:
+
+```powershell
+docker compose down
+```
+
+
