@@ -1,51 +1,16 @@
 # Low-Latency Exchange Engine
 
-A Python-based exchange simulation focused on **low-latency order processing, matching, persistence, recovery, and observability**.
+Deployment Link: https://low-latency-trading-platform.vercel.app/
 
-The system implements an in-memory matching engine with price-time priority, order lifecycle management, risk controls, reservations, trade settlement, WAL persistence, crash recovery, and Prometheus/Grafana monitoring.
+## Table of Contents
 
-## Architecture
-
-```text
-                    +------------------+
-                    |  Order Gateway   |
-                    +--------+---------+
-                             |
-                             v
-                    +------------------+
-                    |     Exchange     |
-                    |------------------|
-                    | Validation/Risk  |
-                    | Reservations     |
-                    | Settlement       |
-                    +--------+---------+
-                             |
-                             v
-                    +------------------+
-                    | Matching Engine  |
-                    +--------+---------+
-                             |
-                             v
-                    +------------------+
-                    |    Order Book    |
-                    | Price-Time        |
-                    | Priority          |
-                    +--------+---------+
-                             |
-              +--------------+--------------+
-              |                             |
-              v                             v
-       +-------------+              +--------------+
-       |   Trades    |              | Event Bus/WAL|
-       | Settlement  |              | Persistence  |
-       +-------------+              +------+-------+
-                                           |
-                                           v
-                                    +-------------+
-                                    |  Recovery   |
-                                    +-------------+
-
-Observability:
-
-Exchange → Prometheus → Grafana
-```
+- [Project Description](#project-description)
+- [Objectives](#objectives)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Environment Variables](#environment-variables)
+- [Run Locally](#run-locally)
+- [Tech Stack](#tech-stack)
+- [Performance & Benchmarks](#performance--benchmarks)
+- [Monitoring & Observability](#monitoring--observability)
+- [Screenshots](#screenshots)
