@@ -192,4 +192,35 @@ To stop the services:
 docker compose down
 ```
 
+## Tech Stack
 
+| Category | Technologies |
+|---|---|
+| **Programming Language** | Python 3.13 |
+| **Backend Framework** | FastAPI, Uvicorn |
+| **Trading Engine** | Custom In-Memory Order Book, FIFO, Price-Time Priority |
+| **Database** | SQLite |
+| **Persistence** | Write-Ahead Log (WAL), Event Recording & Replay |
+| **Authentication** | JWT, PBKDF2 Password Hashing |
+| **Real-Time Communication** | WebSockets |
+| **Frontend** | Next.js, TypeScript |
+| **Styling** | Tailwind CSS |
+| **Charts** | Recharts |
+| **Monitoring** | Prometheus, Grafana |
+| **Containerization** | Docker, Docker Compose |
+| **Testing** | Pytest |
+| **Version Control** | Git, GitHub |
+| **Frontend Deployment** | Vercel |
+| **Backend Deployment** | Render |
+
+## Screenshots
+
+### Trading Portal
+
+### Login Page
+
+- **User Login**
+
+  The login page allows users to securely access the trading platform using their registered credentials.
+
+ <img width="1315" height="626" alt="Screenshot 2026-09-06 121327" src="https://github.com/user-attachments/assets/41726055-ca04-4072-a2f5-e07b99912f02" />
