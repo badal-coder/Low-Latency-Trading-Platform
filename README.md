@@ -217,10 +217,20 @@ docker compose down
 
 ### Trading Portal
 
+### Registration Page
+
+- **Registration**
+
+  The Registration page allows users to securely Register them into trading platform
+<img width="1896" height="905" alt="Screenshot 2026-09-06 114907" src="https://github.com/user-attachments/assets/475be309-82df-4086-9c47-5683bc33aaf3" />
+
+
+ 
 ### Login Page
 
 - **User Login**
 
   The login page allows users to securely access the trading platform using their registered credentials.
 
- <img width="1315" height="626" alt="Screenshot 2026-09-06 121327" src="https://github.com/user-attachments/assets/41726055-ca04-4072-a2f5-e07b99912f02" />
+ <img width="1919" height="893" alt="Screenshot 2026-09-06 114840" src="https://github.com/user-attachments/assets/3b0744a2-bd65-4ad0-8046-79cc5bcc67e9" />
+
