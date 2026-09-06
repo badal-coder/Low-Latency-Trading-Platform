@@ -261,4 +261,16 @@ The Portfolio section displays account cash, portfolio value, market value, and 
 
 Grafana provides monitoring and visualization of exchange performance, order activity, trade execution, and latency metrics.
 
-![Grafana Dashboard](screenshots/grafana-dashboard.png)
+<img width="1917" height="895" alt="image" src="https://github.com/user-attachments/assets/c2e74ca0-90c1-4b53-92e5-7eab8b4e1650" />
+
+<img width="1823" height="905" alt="image" src="https://github.com/user-attachments/assets/6840d184-ca96-4769-926c-b366d27c8ee4" />
+
+<img width="1919" height="908" alt="image" src="https://github.com/user-attachments/assets/6310270d-b574-4d17-a829-300df1d7f9fb" />
+
+## Designed and Implemented By
+
+### Badal
+
+- [GitHub](https://github.com/badal-coder)
+- [LinkedIn](www.linkedin.com/in/badal-b70b65215)
+
