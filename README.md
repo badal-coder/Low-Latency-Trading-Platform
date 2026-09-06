@@ -6,6 +6,7 @@ Deployment Link: https://low-latency-trading-platform.vercel.app/
 
 - [Project Description](#project-description)
 - [Objectives](#objectives)
+- [Architecture](#Architecture)
 - [Features](#features)
 - [Technologies Used](#technologies-used)
 - [Environment Variables](#environment-variables)
@@ -30,6 +31,40 @@ The project also provides a web-based trading portal for interacting with the ex
 > - Provide persistence and recovery mechanisms using WAL and event replay.
 > - Monitor exchange performance and operational metrics using Prometheus and Grafana.
 
+## Architecture
+
+                    ┌─────────────────────────┐
+                    │     Trading Portal      │
+                    │ Next.js + TypeScript    │
+                    └────────────┬────────────┘
+                                 │
+                         REST API / WebSocket
+                                 │
+                    ┌────────────▼────────────┐
+                    │       FastAPI API       │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │    Exchange Engine      │
+                    │                          │
+                    │  Order Book              │
+                    │  Price-Time Priority     │
+                    │  FIFO Matching           │
+                    │  Risk Management         │
+                    │  Settlement              │
+                    └──────┬──────────┬────────┘
+                           │          │
+                 ┌─────────▼───┐  ┌───▼──────────┐
+                 │ SQLite / WAL│  │ Event System  │
+                 │ Persistence │  │ Replay        │
+                 └─────────────┘  └───────────────┘
+                           │
+                    ┌──────▼────────────┐
+                    │ Prometheus /      │
+                    │ Grafana           │
+                    │ Monitoring        │
+                    └───────────────────┘
+                    
 ## Features
 
 > ### Trading Engine
