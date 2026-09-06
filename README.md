@@ -221,7 +221,7 @@ docker compose down
 
 - **Registration**
 
-  The Registration page allows users to securely Register them into trading platform
+  The registration page allows users to securely register them into trading platform
 <img width="1896" height="905" alt="Screenshot 2026-09-06 114907" src="https://github.com/user-attachments/assets/475be309-82df-4086-9c47-5683bc33aaf3" />
 
 
@@ -234,3 +234,31 @@ docker compose down
 
  <img width="1919" height="893" alt="Screenshot 2026-09-06 114840" src="https://github.com/user-attachments/assets/3b0744a2-bd65-4ad0-8046-79cc5bcc67e9" />
 
+### Trading Dashboard
+
+The main trading dashboard provides an overview of the BTC/USD market, live market statistics, price chart, and order placement interface.
+<img width="1829" height="860" alt="ChatGPT Image Sep 6, 2026, 12_34_47 PM" src="https://github.com/user-attachments/assets/36418a30-15cd-4529-a7ae-cf0d23070a73" />
+
+### Order Book & Recent Trades
+
+The order book displays current bid and ask levels with their available quantities, while the Recent Trades section shows executed market activity.
+
+<img width="1774" height="887" alt="ChatGPT Image Sep 6, 2026, 12_45_11 PM" src="https://github.com/user-attachments/assets/18e6f126-b9a9-4d52-9c9d-9d71eaad8aa9" />
+
+### My Orders
+
+The My Orders section allows users to monitor their submitted orders, including order side, type, price, quantity, filled quantity, status, and cancellation options.
+
+<img width="1840" height="448" alt="Screenshot 2026-09-06 123939" src="https://github.com/user-attachments/assets/324d4e9f-7b43-4bca-ba72-1b3d9de0b9fd" />
+
+### Portfolio & Execution History
+
+The Portfolio section displays account cash, portfolio value, market value, and current positions. Execution History provides a record of completed trades.
+
+<img width="2167" height="702" alt="ChatGPT Image Sep 6, 2026, 12_42_20 PM" src="https://github.com/user-attachments/assets/4f6f62de-47ff-4cea-99b2-7d54d04dd5ab" />
+
+### Grafana Dashboard
+
+Grafana provides monitoring and visualization of exchange performance, order activity, trade execution, and latency metrics.
+
+![Grafana Dashboard](screenshots/grafana-dashboard.png)
